@@ -5,7 +5,7 @@ import { SecretRedactor } from '../security/secret-redactor.js';
 export interface AuditRecord {
   timestamp: string;
   runId: string;
-  type: 'prompt' | 'thought' | 'tool_call' | 'tool_result' | 'token_usage' | 'artifact' | 'error';
+  type: 'prompt' | 'thought' | 'tool_call' | 'tool_result' | 'token_usage' | 'artifact' | 'error' | 'security_policy';
   turnIndex: number;
   data: unknown;
 }

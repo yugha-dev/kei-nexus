@@ -8,6 +8,7 @@ import { AgentState, AgentStepEvent } from './state.js';
 import { LoopGuard } from './loop-guard.js';
 import { TokenBudget } from './token-budget.js';
 import { SecretRedactor } from '../security/secret-redactor.js';
+import { SecurityPolicyManager } from '../security/policy.js';
 
 export interface AgentConfig {
   client: KeiClient;
@@ -16,6 +17,7 @@ export interface AgentConfig {
   model?: string;
   maxTurns?: number;
   systemPrompt?: string;
+  securityPolicy?: SecurityPolicyManager;
 }
 
 export interface AgentRunResult {
@@ -39,6 +41,7 @@ export class Agent extends EventEmitter {
   private readonly loopGuard: LoopGuard;
   private readonly tokenBudget: TokenBudget;
   private readonly systemPrompt: string;
+  private readonly securityPolicy: SecurityPolicyManager;
 
   constructor(config: AgentConfig) {
     super();
@@ -48,6 +51,7 @@ export class Agent extends EventEmitter {
     this.model = config.model || this.client.getDefaultModel();
     this.loopGuard = new LoopGuard(config.maxTurns || 15);
     this.tokenBudget = new TokenBudget();
+    this.securityPolicy = config.securityPolicy || new SecurityPolicyManager();
 
     this.systemPrompt =
       config.systemPrompt ||
@@ -161,15 +165,31 @@ Work step-by-step:
         auditLogger.log('tool_call', turn, { tool: toolName, args: toolArgs });
 
         let toolResult: unknown;
-        try {
-          toolResult = await this.skills.executeTool(toolName, toolCall.function.arguments, {
-            workspaceRoot: this.workspace.getChambers().root,
-            runId,
-          });
-        } catch (toolError: unknown) {
+        const skill = this.skills.get(toolName);
+        const policyCheck = await this.securityPolicy.evaluate(toolName, toolArgs, skill?.metadata);
+
+        auditLogger.log('security_policy', turn, {
+          tool: toolName,
+          tier: policyCheck.tier,
+          allowed: policyCheck.allowed,
+          reason: policyCheck.reason,
+        });
+
+        if (!policyCheck.allowed) {
           toolResult = {
-            error: toolError instanceof Error ? toolError.message : String(toolError),
+            error: policyCheck.reason || `Tool execution blocked by security policy: ${toolName}`,
           };
+        } else {
+          try {
+            toolResult = await this.skills.executeTool(toolName, toolCall.function.arguments, {
+              workspaceRoot: this.workspace.getChambers().root,
+              runId,
+            });
+          } catch (toolError: unknown) {
+            toolResult = {
+              error: toolError instanceof Error ? toolError.message : String(toolError),
+            };
+          }
         }
 
         const serializedResult = typeof toolResult === 'string' ? toolResult : JSON.stringify(toolResult);

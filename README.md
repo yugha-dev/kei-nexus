@@ -1,236 +1,223 @@
-# ⚡ Kei-Nexus: Autonomous AI Agent Ecosystem
+# ⚡ Kei-Nexus: AI Security & Architecture Review Agent
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue?logo=typescript)](https://www.typescriptlang.org/)
-[![Vitest](https://img.shields.io/badge/Vitest-3.0-green?logo=vitest)](https://vitest.dev/)
-[![Coverage](https://img.shields.io/badge/Coverage-86%25-brightgreen)](https://github.com/yugha-dev/kei-nexus)
-[![Security Gate](https://img.shields.io/badge/Security%20Gate-100%25%20Passed-emerald)](https://github.com/yugha-dev/kei-nexus)
-[![Inference](https://img.shields.io/badge/Provider-Kei%20Inference-cyan)](https://api.kei-inference.web.id)
-[![License](https://img.shields.io/badge/License-MIT-purple)](LICENSE)
+[![CI & Security Gate](https://github.com/yugha-dev/kei-nexus/actions/workflows/ci.yml/badge.svg)](https://github.com/yugha-dev/kei-nexus/actions)
+[![Security Gate: 48 Checks Passed](https://img.shields.io/badge/Security%20Gate-48%20Checks%20Passed-emerald?logo=shield)](tests/unit/security-regression.test.ts)
+[![Tests: 97 Passed](https://img.shields.io/badge/Vitest-97%20Passed%20(100%25)-green?logo=vitest)](tests/unit/)
+[![Coverage: 85%](https://img.shields.io/badge/Coverage-85%25-brightgreen)](tests/unit/)
+[![Provider: Kei Inference](https://img.shields.io/badge/Provider-Kei%20Inference-cyan)](https://api.kei-inference.web.id)
+[![TypeScript 5.8](https://img.shields.io/badge/TypeScript-5.8-blue?logo=typescript)](https://www.typescriptlang.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-purple)](LICENSE)
 
-> Built for **CHALLENGE KEI INFERENCE — AI AGENT ECOSYSTEM**  
-> An autonomous, secure, and production-grade AI agent ecosystem featuring an event-driven **Harness**, **Multi-Agent Swarm**, schema-first **Skills**, a sandboxed four-chamber **Workspace**, an embedded **Web Studio GUI**, and end-to-end **Workflows** synthesizing standalone interactive living artifacts.
+> **Kei-Nexus** adalah AI Security & Architecture Review Agent otonom yang mentransformasi repositori atau project brief menjadi **audit keamanan mendalam, pemetaan batas kepercayaan arsitektur (trust boundaries), dan roadmap perbaikan prioritas yang dapat dieksekusi**.  
+> Dibangun khusus untuk **CHALLENGE KEI INFERENCE — AI AGENT ECOSYSTEM** ditenagai oleh model reasoning `glm-5.3-flash` & `deepseek-v4.1-flash`.
 
 ---
 
-## 🌟 The Four Core Pillars
+## ⚡ Jalankan Demo dalam 30 Detik
 
-Kei-Nexus implements the four required competition pillars with zero compromise:
+Anda dapat mendemokan dan mereview proyek contoh ([`sample-project/`](sample-project/)) secara instan:
+
+### Opsi 1: Satu Baris Perintah (Rekomendasi)
+```bash
+git clone https://github.com/yugha-dev/kei-nexus.git && cd kei-nexus && ./setup.sh
+```
+*Untuk pengguna Windows PowerShell:*
+```powershell
+git clone https://github.com/yugha-dev/kei-nexus.git; cd kei-nexus; .\setup.ps1
+```
+> Installer interaktif ini otomatis memeriksa dependensi, meminta API key Kei Anda, menjalankan diagnosa koneksi, dan langsung memicu audit demo!
+
+### Opsi 2: Command Mandiri
+```bash
+# 1. Install dependencies
+npm install
+
+# 2. Jalankan Flagship AI Review Demo
+npm run demo
+```
+Output instan akan langsung terbit ke folder `.workspace/artifacts/` dan siap dibuka di browser!
+
+---
+
+## 📦 Contoh Input → Proses → Output Nyata
+
+Semua hasil eksekusi nyata dari pipeline review telah disimpan dan dapat diinspeksi langsung di folder [`examples/demo-run/`](examples/demo-run/):
+
+| File Deliverable | Format | Fungsi & Deskripsi |
+|---|---|---|
+| [`examples/demo-run/audit-report.html`](examples/demo-run/audit-report.html) | **Living HTML5** | Dashboard interaktif dark-mode mandiri (zero external CDN dependency) dilengkapi filter severity instan, diagram batas kepercayaan, matriks 48 security checks, dan pemutar riwayat Flight Recorder. |
+| [`examples/demo-run/findings.json`](examples/demo-run/findings.json) | **JSON Schema** | Output terstruktur machine-readable divalidasi oleh Zod Schema, memuat detail file, nomor baris kode, potongan snippet, status verifikasi disk, dan skor evaluasi. |
+| [`examples/demo-run/summary.md`](examples/demo-run/summary.md) | **Markdown** | Ringkasan eksekutif untuk pimpinan teknis dengan rincian temuan dan roadmap perbaikan terfokus. |
+| [`examples/demo-run/trace.ndjson`](examples/demo-run/trace.ndjson) | **NDJSON** | Rekaman Flight Recorder yang merekam setiap pemanggilan tool, input/output hash, dan token usage secara transparan. |
+
+---
+
+## 🏛️ Arsitektur & Empat Pilar Wajib Kompetisi
+
+Kei-Nexus mengimplementasikan keempat pilar kompetisi secara disiplin dan terstruktur:
 
 ```
-                  ┌────────────────────────────────────────────────────────┐
-                  │                 KEI INFERENCE API                      │
-                  │   (/v1/chat/completions • glm-5.3-flash • deepseek)    │
-                  └───────────────────────────▲────────────────────────────┘
-                                              │  SSE Stream & Tool Calls
-                                              ▼
+┌──────────────────────────────────────────────────────────────────────────────────────────┐
+│                                   KEI INFERENCE API                                      │
+│                  (https://api.kei-inference.web.id/v1 • glm-5.3-flash)                    │
+└───────────────────────────────────────────▲──────────────────────────────────────────────┘
+                                            │ SSE Streaming & Tool Calls
+                                            ▼
 ┌──────────────────────────────────────────────────────────────────────────────────────────┐
 │ 1. HARNESS ENGINE (src/core/harness/)                                                   │
-│   • ReAct Loop FSM (IDLE → THINKING → CALLING_TOOL → EXECUTING → REFLECTING → COMPLETED)│
-│   • LoopGuard: Repetition & turn explosion detector                                      │
-│   • TokenBudget: Accumulated usage tracker & context compaction monitor                  │
-│   • Event Streamer: Powers live CLI Cockpit and Flight Recorder                          │
-└─────────────────────────────────────────────┬────────────────────────────────────────────┘
-                                              │ Dispatches Actions
-                                              ▼
+│   • ReAct Loop FSM: IDLE → THINKING → CALLING_TOOL → EXECUTING → REFLECTING → COMPLETED  │
+│   • LoopGuard: Mencegah infinite loop dan repetisi tool berulang                         │
+│   • TokenBudget: Melacak prompt, completion, dan reasoning tokens secara real-time       │
+│   • Multi-Agent Coordination: Architect, SecurityAnalyst, EvidenceVerifier, Synthesizer │
+└───────────────────────────────────────────┬──────────────────────────────────────────────┘
+                                            │ Dispatches Actions via SecurityPolicy
+                                            ▼
 ┌──────────────────────────────────────────────────────────────────────────────────────────┐
-│ 2. MODULAR SKILLS (src/core/skills/)                                                     │
-│   • Schema-First: Every skill is strictly typed via Zod & exported as OpenAI Tool Schema │
-│   • Safe Built-ins:                                                                      │
-│       - fs_read / fs_write / fs_list (Workspace I/O)                                     │
-│       - shell_run (Command AST Whitelist, 30s timeout, env sanitized)                    │
-│       - web_fetch (SSRF-protected public URL scraper)                                    │
-│       - memory_kv (Episodic & tag-based persistent memory)                               │
-│       - artifact_publish (Bundles deliverables into manifest)                            │
-└─────────────────────────────────────────────┬────────────────────────────────────────────┘
-                                              │ Sandboxed Operations
-                                              ▼
+│ 2. MODULAR SKILLS & APPROVAL POLICY (src/core/skills/ & src/core/security/)             │
+│   • Tiered Approval Engine:                                                              │
+│       - READ_ONLY (Auto-Allowed)       : fs_read, fs_list, web_fetch                     │
+│       - WRITE_WORKSPACE (Sandboxed)   : fs_write, memory_kv, artifact_publish           │
+│       - EXECUTE (Approval Required)   : shell_run (Allowlist binary, Anti-chaining)     │
+└───────────────────────────────────────────┬──────────────────────────────────────────────┘
+                                            │ Sandboxed Jailed Operations
+                                            ▼
 ┌──────────────────────────────────────────────────────────────────────────────────────────┐
 │ 3. FOUR-CHAMBER WORKSPACE (.workspace/)                                                  │
-│   • scratchpad/ : Ephemeral agent thoughts, draft scripts & data                         │
-│   • memory/     : Persistent KV store across sessions (store.json)                       │
-│   • artifacts/  : Production deliverables (HTML dashboards, markdown summaries)          │
-│   • audit/      : Replayable NDJSON Flight Recorder execution logs                       │
-└─────────────────────────────────────────────┬────────────────────────────────────────────┘
-                                              │ Coordinated Pipeline
-                                              ▼
+│   • scratchpad/ : Draf pemindaian AST sementara dan catatan agen                         │
+│   • memory/     : State persisten antar sesi (KV store & tag index)                      │
+│   • artifacts/  : Deliverables produksi (audit-report.html, findings.json, summary.md)   │
+│   • audit/      : Rekaman jejak audit NDJSON yang tidak dapat diubah (Flight Recorder)   │
+└───────────────────────────────────────────┬──────────────────────────────────────────────┘
+                                            │ Pipeline Orchestration
+                                            ▼
 ┌──────────────────────────────────────────────────────────────────────────────────────────┐
-│ 4. END-TO-END WORKFLOW (src/core/workflow/)                                              │
-│   • Multi-Phase Pipeline: Ingest Topology → Security Audit → Architecture Synthesis →   │
-│   • Living Artifact Builder: Synthesizes a standalone, zero-dependency, dark-mode        │
-│     Interactive HTML5 Dashboard with search, filters & embedded Flight Recorder Replayer │
+│ 4. END-TO-END WORKFLOW & EVALUATOR (src/core/workflow/)                                  │
+│   • 4-Phase Pipeline: Ingest Topology → Vulnerability Scan → Evidence Verification →     │
+│                       Synthesize & Publish Living HTML Report                            │
+│   • Deterministic Evaluator: Memverifikasi bukti kode nyata di disk & cegah halusinasi   │
 └──────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 🛡️ Zero-Tolerance Security Gate Compliance
+## 🔒 Bukti Keamanan: Security Gate Evidence (48 Checks Passed)
 
-To strictly fulfill the competition's mandatory security gate (*Pass/Fail*), Kei-Nexus implements five unbreakable containment walls:
+Untuk menjamin kelolosan mutlak pada gerbang keamanan (*Pass/Fail Gate*), Kei-Nexus dilengkapi dengan rangkaian uji regresi otomatis sebanyak **48 security checks** yang dijalankan di CI:
 
-| Defense Vector | Guard Engine | Enforcement Mechanism |
-|---|---|---|
-| **Path Traversal / Escape** | `PathGuard` | Normalizes paths and validates realpath. Hard-blocks `../`, null bytes (`\0`), and absolute path escapes (`/etc/`, `C:\`). All file I/O is jailed inside `.workspace/`. |
-| **Dangerous Commands / Shell Exploit** | `CommandGuard` | Strict binary whitelist (`git`, `node`, `npm`, `ls`, `grep`, etc.). Blocks fork bombs, root deletion (`rm -rf /`), piping into interpreters (`curl \| sh`), and raw disk I/O. |
-| **Credential Leakage** | `SecretRedactor` | Deep regex scrubbing against all agent logs, tool arguments, stdout/stderr, and artifacts. Strips OpenAI/Kei keys (`sk-...`), Bearer tokens, GitHub tokens, and AWS keys. |
-| **SSRF (Internal Network Abuse)** | `SsrfGuard` | Validates URLs before fetching. Hard-blocks private RFC 1918 ranges (`10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`), localhost (`127.0.0.1`), and cloud metadata (`169.254.169.254`). |
-| **Prompt Injection** | `PromptShield` | Wraps all untrusted external content (file reads, web scraping) in explicit XML isolation boundaries (`<untrusted_content>`) to prevent system prompt override. |
+| Vektor Serangan | Komponen Penjaga | Bukti Uji CI & Mekanisme Pertahanan | Status |
+|---|---|---|---|
+| **Path Traversal (`../`)** | `PathGuard` | Memblokir `../`, `../../../../etc/passwd`, dan mixed slash traversal. | **PASS** |
+| **Windows Traversal** | `PathGuard` | Memblokir `..\..\windows\win.ini` dan `C:\Windows` drive escape di semua platform. | **PASS** |
+| **Null Byte Injection** | `PathGuard` | Memeriksa dan membatalkan eksekusi jika terdapat `\0` pada path. | **PASS** |
+| **Symlink Workspace Escape** | `PathGuard` | Memvalidasi `realpath` ancestor terdekat agar tidak melompat keluar workspace root. | **PASS** |
+| **Command Injection (Chaining)** | `CommandGuard` | Memblokir operator chaining shell: `;`, `&&`, `||`, `|`, `` ` ``, `$()`, dan `\n`. | **PASS** |
+| **Destructive Commands** | `CommandGuard` | Memblokir `rm -rf /`, `mkfs`, `dd if=/dev/zero`, dan fork bomb `:(){ :|:& };:`. | **PASS** |
+| **Inline Code Eval** | `CommandGuard` | Memblokir `node -e`, `node --eval`, dan `node -p`. | **PASS** |
+| **SSRF: Loopback & Localhost** | `SsrfGuard` | Memblokir `127.0.0.1`, `localhost`, `0.0.0.0`, dan `::1`. | **PASS** |
+| **SSRF: Private IP (RFC 1918)** | `SsrfGuard` | Memblokir IP internal `10.0.0.0/8`, `172.16.0.0/12`, dan `192.168.0.0/16`. | **PASS** |
+| **SSRF: Cloud Metadata** | `SsrfGuard` | Memblokir `169.254.169.254` (AWS, GCP, Azure instance metadata). | **PASS** |
+| **Protokol Berbahaya** | `SsrfGuard` | Membatasi skema URL hanya untuk `http:` dan `https:`, memblokir `file://` dan `ftp://`. | **PASS** |
+| **Kebocoran Kredensial / Token** | `SecretRedactor` | Regex sanitizer otomatis menyensor kunci Kei `sk-*`, GitHub PAT `ghp_*`, dan AWS keys. | **PASS** |
+| **Prompt Injection Boundary** | `PromptShield` | Membungkus input eksternal dalam delimiter XML `<untrusted_content>` dan meng-escape tag penutup. | **PASS** |
+| **Tiered Tool Approval** | `SecurityPolicyManager` | Memblokir eksekusi tool berisiko tinggi tanpa persetujuan eksplisit (`--yes`). | **PASS** |
+
+Verifikasi mandiri test suite keamanan:
+```bash
+npx vitest run tests/unit/security-regression.test.ts
+```
 
 ---
 
-## ⚡ Quickstart (Under 30 Seconds)
+## ⚡ Bukti Integrasi Model Kei Inference
 
-### 🚀 Opsi 1: Paling Mudah (1-Command Interactive Setup)
+Kei-Nexus terhubung secara native ke endpoint resmi Kei Inference:
+- **Base URL:** `https://api.kei-inference.web.id/v1`
+- **Model Default:** `glm-5.3-flash` (Fast, Tool Calling, 1M Context Window)
+- **Model Reasoning:** `deepseek-v4.1-flash` (Deep Reasoning)
+- **Protokol:** Native Server-Sent Events (SSE) stream parser dengan akumulasi tool calls dan token usage.
 
-Jalankan perintah ini di terminal (Linux / macOS):
-```bash
-git clone https://github.com/yugha-dev/kei-nexus.git && cd kei-nexus && ./setup.sh
-```
-*Untuk pengguna **Windows PowerShell**:*
-```powershell
-git clone https://github.com/yugha-dev/kei-nexus.git; cd kei-nexus; .\setup.ps1
-```
-> 💡 *Script installer interaktif ini otomatis menginstall dependensi, meminta API key Kei Anda, melakukan diagnosa koneksi, dan langsung meluncurkan Web Studio GUI atau Workflow pilihan Anda!*
+Setiap report yang dihasilkan menyertakan bukti kriptografis integritas:
+- `provider`: Kei Inference
+- `model`: `glm-5.3-flash`
+- `inputHash`: SHA-256 digest dari kode target yang dianalisis
+- `outputHash`: SHA-256 digest dari daftar temuan yang diverifikasi
+- `secretLeakage`: ZERO DETECTED
 
----
-
-### 📦 Opsi 2: Manual Step-by-Step
-
-#### 1. Clone & Install
-```bash
-git clone https://github.com/yugha-dev/kei-nexus.git
-cd kei-nexus
-npm install
-```
-
-#### 2. Konfigurasi API Key
-```bash
-cp .env.example .env
-```
-Edit file `.env` dan masukkan API Key Kei Inference Anda:
+Konfigurasi `.env`:
 ```ini
 KEI_BASE_URL=https://api.kei-inference.web.id/v1
 KEI_API_KEY=sk-your-key-here
 KEI_DEFAULT_MODEL=glm-5.3-flash
 ```
 
-#### 3. Tes Koneksi (Doctor)
-```bash
-npm run doctor
-```
+---
 
-#### 4. Buka Web Studio GUI (Rekomendasi!)
-```bash
-npm run studio
-```
-Lalu buka browser di **`http://localhost:4100`** — nikmati antarmuka visual dark-mode dengan live streaming token!
+## 👥 Koordinasi Multi-Agent (Kontrak Verifikasi Bukti)
 
-#### 5. Jalankan Autonomous Showcase Workflows
-```bash
-# Menghasilkan .workspace/artifacts/audit-report.html
-npm run workflow:audit
+Untuk mencegah agen berhalusinasi atau mencantumkan klaim kosong, Kei-Nexus membagi proses menjadi 4 peran dengan batas tanggung jawab yang ketat:
 
-# Menghasilkan .workspace/artifacts/pitch-deck.html
-npm run workflow:slides
-```
+1. **Lead Architect**: Memetakan topologi repositori, menginventarisasi package dependencies, dan mengidentifikasi batas kepercayaan (trust boundaries).
+2. **Security Analyst**: Memindai file source code untuk mendeteksi kandidat kerentanan (file, baris, cuplikan kode, severity).
+3. **Evidence Verifier**: Membaca file fisik di disk secara independen. Jika nomor baris atau cuplikan kode tidak cocok dengan kode sumber asli, temuan tersebut **langsung ditolak**.
+4. **Synthesizer**: Mengompilasi hanya temuan yang lolos verifikasi bukti menjadi roadmap perbaikan, matriks risiko, dan dashboard HTML interaktif.
+
+> *"Agen dilarang memasukkan klaim kerentanan ke laporan final sebelum lolos verifikasi bukti (Evidence Verifier) terhadap kode fisik di disk."*
 
 ---
 
-## 💻 CLI Commands & Usage
+## 🧪 Pengujian & Kualitas Kode (TDD)
 
-Kei-Nexus includes an interactive Terminal Cockpit with real-time spinners, thought streams, tool execution badges, and token gauges.
-
-### `run <prompt>`
-Executes an autonomous ReAct agent loop for any user goal:
-```bash
-npx tsx src/cli/index.ts run "Research and summarize the architectural advantages of DeepSeek v4.1"
-```
-
-### `workflow audit` & `workflow slides`
-Runs pre-built flagship pipelines:
-```bash
-# Security & architecture audit pipeline
-npx tsx src/cli/index.ts workflow audit
-
-# Interactive HTML5 presentation generator
-npx tsx src/cli/index.ts workflow slides --topic "Kei-Nexus: Autonomous AI Agent Ecosystem"
-```
-
-### `studio`
-Launches the embedded Web Studio web app on port 4100:
-```bash
-npx tsx src/cli/index.ts studio
-```
-
-### `replay [logFile]`
-Inspects and replays past Flight Recorder NDJSON traces:
-```bash
-npx tsx src/cli/index.ts replay
-```
-
-### `doctor`
-Performs live healthcheck against Kei Inference API:
-```bash
-npx tsx src/cli/index.ts doctor
-```
-
----
-
-## 👥 Multi-Agent Swarm (`AgentTeam`)
-
-Kei-Nexus provides an adversarial multi-agent swarm in `src/core/harness/team.ts`:
-1. **Architect**: Breaks down complex goals into a 3-stage tactical plan.
-2. **Specialist**: Executes actions using the schema-first tool registry inside the sandboxed workspace.
-3. **SecurityCritic**: Adversarially reviews the output for vulnerabilities, hallucinations, and logic flaws.
-4. **Synthesizer**: Consolidates critique and execution into a final verified deliverable.
-
-```typescript
-import { AgentTeam } from './src/core/harness/team.js';
-
-const team = new AgentTeam({ client, skills, workspace });
-const result = await team.execute('Build and audit an autonomous pipeline');
-```
-
----
-
-## 🧪 Testing & Code Quality
-
-Kei-Nexus enforces strict test-driven development (TDD) using **Vitest**:
+Proyek ini dibangun dengan Test-Driven Development (TDD) menggunakan **Vitest**:
 
 ```bash
-# Run all unit and integration tests
+# Jalankan seluruh test suite (97 tests)
 npm test
 
-# Run tests with V8 coverage report
+# Jalankan pengujian dengan laporan coverage V8
 npm run test:coverage
 ```
 
-### Test Coverage Summary:
-- **Test Suites:** 8 passed (100%)
-- **Tests:** 47 passed (100%)
-- **Statements:** 86.02%
-- **Functions:** 87.17%
-- **Lines:** 86.02%
-- **Branches:** 70.31%
+### Ringkasan Hasil Pengujian:
+- **Total Test Files:** 10 passed (100%)
+- **Total Tests:** 97 passed (100%)
+- **Statements Coverage:** 84.68% *(Threshold: 80%)*
+- **Functions Coverage:** 89.76% *(Threshold: 80%)*
+- **Lines Coverage:** 84.68% *(Threshold: 80%)*
 
 ---
 
-## 🎨 Interactive Living Artifacts (WOW Factor for Voters & Jury)
+## 💻 Panduan CLI Command
 
-When workflows run, Kei-Nexus synthesizes self-contained, responsive, zero-dependency HTML5 applications directly into `.workspace/artifacts/`:
+Kei-Nexus menyediakan perintah yang intuitif:
 
-1. **`audit-report.html` (Living Dashboard)**:
-   - Modern Tailwind CSS dark-mode cyberpunk theme.
-   - Client-side real-time search & severity filter (`CRITICAL`, `HIGH`, `MEDIUM`, `INFO`).
-   - Interactive KPI counters (ReAct turns, tokens, latency, security score).
-   - Embedded interactive NDJSON Flight Recorder replayer with step slider.
+### 1. `npm run demo` / `npx tsx src/cli/index.ts demo`
+Menjalankan audit 30 detik pada proyek benchmark `sample-project/`.
 
-2. **`pitch-deck.html` (Interactive Slide Deck)**:
-   - Standalone HTML5 presentation deck with keyboard controls (`←` / `→` / `Space`).
-   - Animated slide transitions, syntax-highlighted code blocks, and takeaway callouts.
-   - Zero external build dependencies — double click to present anywhere.
+### 2. `npx tsx src/cli/index.ts audit [folderPath]`
+Menjalankan audit keamanan & arsitektur pada folder proyek apa pun:
+```bash
+npx tsx src/cli/index.ts audit ./my-express-app --yes
+```
+
+### 3. `npm run studio`
+Membuka antarmuka visual Web Studio GUI di `http://localhost:4100`.
+
+### 4. `npm run doctor`
+Mengetes konektivitas dan autentikasi ke endpoint Kei Inference.
+
+### 5. `npx tsx src/cli/index.ts replay [logFile]`
+Memutar ulang jejak audit Flight Recorder NDJSON di terminal.
 
 ---
 
-## 📄 License
+## ⚠️ Batasan & Scope (Limitations)
 
-MIT License. Built for the Kei Inference AI Agent Ecosystem Challenge.
+1. **Static Analysis & Heuristics**: Agen berfokus pada audit statis kode sumber dan arsitektur; agen tidak melakukan eksploitasi aktif (*no dynamic pentesting / payload firing*).
+2. **Offline vs Live Mode**: Jika API key Kei tidak tersedia atau environment berada di sandbox tanpa internet, sistem secara deterministik menggunakan fallback AST rule-checker untuk tetap memverifikasi evidence dan mempublikasikan artefak.
+3. **Execution Sandbox**: Seluruh penulisan file dibatasi di dalam folder `.workspace/` demi integritas sistem host.
+
+---
+
+## 📄 Lisensi
+
+MIT License. Dibuat untuk kompetisi resmi **Challenge Kei Inference — AI Agent Ecosystem**.

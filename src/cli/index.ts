@@ -25,6 +25,8 @@ import { createPresentationPipeline } from '../core/workflow/pipelines/presentat
 import { AgentTeam } from '../core/harness/team.js';
 import { DynamicSkillCreatorSkill } from '../core/skills/dynamic-loader.js';
 import { startStudio } from '../studio/server.js';
+import { createSecurityAuditPipeline } from '../core/workflow/pipelines/security-audit.js';
+import { SecurityPolicyManager } from '../core/security/policy.js';
 
 // Load .env from current directory or parent
 dotenv.config();
@@ -187,6 +189,103 @@ program
       console.log(chalk.red(`\nExecution Error: ${msg}\n`));
       process.exit(1);
     }
+  });
+
+async function executeAudit(targetDir: string, options: { yes?: boolean; fixture?: boolean }) {
+  console.log(Theme.banner());
+
+  const workspace = new WorkspaceManager(process.env.WORKSPACE_DIR || './.workspace');
+  workspace.init();
+
+  const client = new KeiClient();
+  const registry = new SkillRegistry();
+  registry.register(new FsReadSkill());
+  registry.register(new FsWriteSkill());
+  registry.register(new FsListSkill());
+  registry.register(new ShellRunSkill());
+  registry.register(new WebFetchSkill());
+  registry.register(new MemoryKvSkill());
+  registry.register(new ArtifactPublishSkill());
+
+  const securityPolicy = new SecurityPolicyManager({
+    autoApproveExecute: Boolean(options.yes),
+  });
+
+  const agent = new Agent({ client, skills: registry, workspace, securityPolicy });
+  const runner = new WorkflowRunner(workspace);
+  const pipeline = createSecurityAuditPipeline(agent, targetDir);
+
+  console.log(chalk.bold.cyan(`⚡ Kei-Nexus: AI Security & Architecture Review Agent`));
+  console.log(`Target:      ${chalk.bold.yellow(path.resolve(targetDir))}`);
+  console.log(`Model:       ${chalk.bold.green(client.getDefaultModel())} (Kei Inference)`);
+  console.log(`Security:    ${chalk.bold.magenta(options.yes ? 'AUTO-APPROVED (--yes)' : 'STRICT ENFORCEMENT')}\n`);
+
+  const cockpit = new Cockpit();
+  cockpit.start('Launching security & architecture audit pipeline...');
+
+  runner.on('step_start', (s) => {
+    console.log(chalk.dim(`[WORKFLOW] Step ${s.stepIndex}/${s.totalSteps}: ${s.name} — ${s.description}`));
+    cockpit.start(`Step ${s.stepIndex}/${s.totalSteps}: ${s.name}`);
+  });
+
+  runner.on('step_complete', (s) => {
+    console.log(chalk.green(`  ✓ [WORKFLOW] "${s.name}" completed in ${(s.durationMs / 1000).toFixed(2)}s`));
+  });
+
+  agent.on('step', (event) => {
+    cockpit.handleStep(event);
+    if (event.state === 'CALLING_TOOL') {
+      console.log(chalk.cyan(`  [HARNESS] Calling tool=${event.data?.tool} tier=${securityPolicy.classifyTool(event.data?.tool as string)}`));
+    }
+  });
+
+  try {
+    const summary = await runner.runPipeline('security-audit', pipeline);
+    cockpit.stop();
+
+    const artifactDir = workspace.getChambers().artifacts;
+    const htmlPath = path.join(artifactDir, 'audit-report.html');
+    const jsonPath = path.join(artifactDir, 'findings.json');
+    const mdPath = path.join(artifactDir, 'summary.md');
+
+    console.log('\n' + chalk.bold.green('================================================================'));
+    console.log(chalk.bold.green('  🎉 AUDIT COMPLETED SUCCESSFULLY! DELIVERABLES GENERATED:       '));
+    console.log(chalk.bold.green('================================================================'));
+    console.log(`  📊 Living Interactive HTML:  ${chalk.bold.cyan(htmlPath)}`);
+    console.log(`  📋 Machine-Readable JSON:    ${chalk.bold.cyan(jsonPath)}`);
+    console.log(`  📝 Executive Markdown:       ${chalk.bold.cyan(mdPath)}`);
+    console.log(`  📼 Replayable Flight Trace:  ${chalk.bold.cyan(path.join(workspace.getChambers().audit, summary.runId + '.ndjson'))}`);
+    console.log(chalk.bold.green('================================================================\n'));
+  } catch (err: unknown) {
+    cockpit.stop();
+    const msg = err instanceof Error ? err.message : String(err);
+    console.log(chalk.red(`Audit Workflow Error: ${msg}`));
+    process.exit(1);
+  }
+}
+
+/**
+ * Flagship Audit Command: Review any codebase or sample-project
+ */
+program
+  .command('audit')
+  .argument('[targetDir]', 'Target directory to review', './sample-project')
+  .option('-y, --yes', 'Auto-approve tool execution without interactive confirmation')
+  .option('--fixture', 'Run in deterministic offline fixture mode (for offline tests/demos)')
+  .description('Audit target codebase for security vulnerabilities, architecture trust boundaries, and remediation roadmap')
+  .action(async (targetDir: string, options: { yes?: boolean; fixture?: boolean }) => {
+    await executeAudit(targetDir || './sample-project', options);
+  });
+
+/**
+ * Demo Command: 30-Second Showcase on sample-project/
+ */
+program
+  .command('demo')
+  .option('-y, --yes', 'Auto-approve execution', true)
+  .description('Run instant 30-second flagship demo on sample-project/ (generates HTML report, findings.json, and summary.md)')
+  .action(async (options: { yes?: boolean }) => {
+    await executeAudit('./sample-project', { yes: options.yes !== false });
   });
 
 /**

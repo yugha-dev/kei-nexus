@@ -34,6 +34,11 @@ export class PathGuard {
       throw new SecurityViolationError('Null byte detected in path');
     }
 
+    // Reject Windows drive absolute paths on any OS
+    if (/^[a-zA-Z]:[\\/]/.test(targetPath)) {
+      throw new SecurityViolationError(`Windows drive path escape detected: "${targetPath}"`);
+    }
+
     // Normalize and resolve path
     const resolvedPath = path.isAbsolute(targetPath)
       ? path.resolve(targetPath)

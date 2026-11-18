@@ -91,10 +91,10 @@ npx tsx src/cli/index.ts doctor || true
 echo -e "\n${GREEN}${BOLD}================================================================${NC}"
 echo -e "${GREEN}${BOLD}  ✨ KEI-NEXUS SIAP DIJALANKAN! Pilih opsi yang ingin kamu coba: ${NC}"
 echo -e "${GREEN}${BOLD}================================================================${NC}"
-echo -e "  ${BOLD}1)${NC} 🌐 Buka ${CYAN}Web Studio GUI${NC} (Rekomendasi! Browser http://localhost:4100)"
-echo -e "  ${BOLD}2)${NC} 📊 Jalankan ${CYAN}Fullstack Security & Architecture Audit${NC} (Menghasilkan HTML)"
+echo -e "  ${BOLD}1)${NC} 🚀 Jalankan ${CYAN}Flagship AI Security Audit Demo${NC} (sample-project -> HTML & JSON)"
+echo -e "  ${BOLD}2)${NC} 🌐 Buka ${CYAN}Web Studio GUI${NC} (Browser http://localhost:4100)"
 echo -e "  ${BOLD}3)${NC} 📑 Jalankan ${CYAN}Interactive Slide Deck Generator${NC} (Menghasilkan Slide HTML)"
-echo -e "  ${BOLD}4)${NC} 🧪 Jalankan ${CYAN}Automated Test Suite${NC} (Vitest 47/47 passing)"
+echo -e "  ${BOLD}4)${NC} 🧪 Jalankan ${CYAN}Automated Test Suite${NC} (Vitest passing)"
 echo -e "  ${BOLD}5)${NC} 🚪 Keluar"
 echo ""
 echo -ne "${BOLD}Pilih nomor [1-5] (default 1): ${NC}"
@@ -102,10 +102,8 @@ read -r CHOICE
 
 case "$CHOICE" in
     2)
-        echo -e "\n${CYAN}Menjalankan Flagship Audit Workflow...${NC}"
-        npm run workflow:audit
-        echo -e "\n${GREEN}✓ Selesai! Buka laporan di browser:${NC}"
-        echo -e "  ${BOLD}.workspace/artifacts/audit-report.html${NC}"
+        echo -e "\n${CYAN}Meluncurkan Web Studio Cockpit di http://localhost:4100 ...${NC}"
+        npm run studio
         ;;
     3)
         echo -e "\n${CYAN}Menjalankan Interactive Slide Deck Generator...${NC}"
@@ -118,11 +116,15 @@ case "$CHOICE" in
         npm test
         ;;
     5)
-        echo -e "\n${GREEN}Terima kasih! Jalankan 'npm run studio' kapan saja untuk membuka Web Studio.${NC}"
+        echo -e "\n${GREEN}Terima kasih! Jalankan 'npm run demo' kapan saja untuk review.${NC}"
         exit 0
         ;;
     *)
-        echo -e "\n${CYAN}Meluncurkan Web Studio Cockpit di http://localhost:4100 ...${NC}"
-        npm run studio
+        echo -e "\n${CYAN}Menjalankan Flagship AI Review Demo pada sample-project...${NC}"
+        npm run demo
+        echo -e "\n${GREEN}✓ Selesai! Buka deliverable di browser:${NC}"
+        echo -e "  ${BOLD}.workspace/artifacts/audit-report.html${NC}"
+        echo -e "  ${BOLD}.workspace/artifacts/findings.json${NC}"
+        echo -e "  ${BOLD}.workspace/artifacts/summary.md${NC}"
         ;;
 esac

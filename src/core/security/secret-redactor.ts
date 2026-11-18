@@ -7,7 +7,7 @@ export class SecretRedactor {
     // OpenAI and Kei API keys (sk-...)
     { regex: /sk-[a-zA-Z0-9_\-]{20,}/g, replacement: '[REDACTED_API_KEY]' },
     // GitHub tokens (ghp_, gho_, etc.)
-    { regex: /gh[pousr]-[a-zA-Z0-9]{36,}/g, replacement: '[REDACTED_GH_TOKEN]' },
+    { regex: /gh[pousr]_[a-zA-Z0-9]{30,}/g, replacement: '[REDACTED_GH_TOKEN]' },
     // AWS Access Key ID
     { regex: /(?:AKIA|ASIA)[0-9A-Z]{16}/g, replacement: '[REDACTED_AWS_KEY]' },
     // Generic Bearer tokens in headers
