@@ -10,4 +10,5 @@ coverage/
 !.workspace/artifacts/.gitkeep
 .workspace/memory/*
 !.workspace/memory/.gitkeep
+.deploy_key*
 .DS_Store
