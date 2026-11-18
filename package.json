@@ -16,6 +16,7 @@
     "test:coverage": "vitest run --coverage",
     "doctor": "tsx src/cli/index.ts doctor",
     "studio": "tsx src/cli/index.ts studio",
+    "setup": "bash setup.sh",
     "workflow:audit": "tsx src/cli/index.ts workflow audit",
     "workflow:slides": "tsx src/cli/index.ts workflow slides"
   },

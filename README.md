@@ -77,53 +77,60 @@ To strictly fulfill the competition's mandatory security gate (*Pass/Fail*), Kei
 
 ---
 
-## ⚡ Quickstart (Under 60 Seconds)
+## ⚡ Quickstart (Under 30 Seconds)
 
-### 1. Prerequisites
-- Node.js 20+ (ESM support)
-- Active API Key from `@KeiInferenceBot`
+### 🚀 Opsi 1: Paling Mudah (1-Command Interactive Setup)
 
-### 2. Clone & Install
+Jalankan perintah ini di terminal (Linux / macOS):
+```bash
+git clone https://github.com/yugha-dev/kei-nexus.git && cd kei-nexus && ./setup.sh
+```
+*Untuk pengguna **Windows PowerShell**:*
+```powershell
+git clone https://github.com/yugha-dev/kei-nexus.git; cd kei-nexus; .\setup.ps1
+```
+> 💡 *Script installer interaktif ini otomatis menginstall dependensi, meminta API key Kei Anda, melakukan diagnosa koneksi, dan langsung meluncurkan Web Studio GUI atau Workflow pilihan Anda!*
+
+---
+
+### 📦 Opsi 2: Manual Step-by-Step
+
+#### 1. Clone & Install
 ```bash
 git clone https://github.com/yugha-dev/kei-nexus.git
 cd kei-nexus
 npm install
 ```
 
-### 3. Configure Environment
+#### 2. Konfigurasi API Key
 ```bash
 cp .env.example .env
 ```
-Edit `.env` and add your Kei API credentials:
+Edit file `.env` dan masukkan API Key Kei Inference Anda:
 ```ini
 KEI_BASE_URL=https://api.kei-inference.web.id/v1
 KEI_API_KEY=sk-your-key-here
 KEI_DEFAULT_MODEL=glm-5.3-flash
 ```
 
-### 4. Run Diagnostics (Doctor)
-Verify connection to Kei Inference and available models:
+#### 3. Tes Koneksi (Doctor)
 ```bash
 npm run doctor
 ```
 
-### 5. Launch Interactive Web Studio Cockpit (GUI)
-Start the built-in Web Studio server and interact visually via your browser:
+#### 4. Buka Web Studio GUI (Rekomendasi!)
 ```bash
 npm run studio
 ```
-Then open **`http://localhost:4100`** — featuring live SSE token streaming, prompt suggestions, and real-time artifact previews!
+Lalu buka browser di **`http://localhost:4100`** — nikmati antarmuka visual dark-mode dengan live streaming token!
 
-### 6. Launch Autonomous Showcase Workflows
-Execute the end-to-end fullstack verification pipeline:
+#### 5. Jalankan Autonomous Showcase Workflows
 ```bash
+# Menghasilkan .workspace/artifacts/audit-report.html
 npm run workflow:audit
-# Generates .workspace/artifacts/audit-report.html
-```
-Or synthesize an interactive presentation slide deck:
-```bash
+
+# Menghasilkan .workspace/artifacts/pitch-deck.html
 npm run workflow:slides
-# Generates .workspace/artifacts/pitch-deck.html
 ```
 
 ---
