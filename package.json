@@ -15,8 +15,9 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "doctor": "tsx src/cli/index.ts doctor",
+    "studio": "tsx src/cli/index.ts studio",
     "workflow:audit": "tsx src/cli/index.ts workflow audit",
-    "workflow:research": "tsx src/cli/index.ts workflow research"
+    "workflow:slides": "tsx src/cli/index.ts workflow slides"
   },
   "keywords": [
     "ai",

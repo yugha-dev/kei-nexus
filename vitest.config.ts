@@ -23,6 +23,7 @@ export default defineConfig({
         'src/index.ts',
         'src/cli/index.ts',
         'src/cli/ui/**',
+        'src/studio/**',
         'src/core/client/types.ts',
         'src/core/workflow/pipeline-step.ts',
         'vitest.config.ts',

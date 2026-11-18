@@ -21,6 +21,10 @@ import {
 import { Agent } from '../core/harness/agent.js';
 import { WorkflowRunner } from '../core/workflow/workflow-runner.js';
 import { createFullstackAuditPipeline } from '../core/workflow/pipelines/fullstack-audit.js';
+import { createPresentationPipeline } from '../core/workflow/pipelines/presentation-gen.js';
+import { AgentTeam } from '../core/harness/team.js';
+import { DynamicSkillCreatorSkill } from '../core/skills/dynamic-loader.js';
+import { startStudio } from '../studio/server.js';
 
 // Load .env from current directory or parent
 dotenv.config();
@@ -78,6 +82,19 @@ program
   });
 
 /**
+ * Studio Command: Launch interactive Web Cockpit
+ */
+program
+  .command('studio')
+  .option('-p, --port <port>', 'Port number to listen on', '4100')
+  .description('Launch interactive Web Studio Cockpit with live agent streaming and artifact visualizer')
+  .action((options) => {
+    console.log(Theme.banner());
+    const port = parseInt(options.port, 10) || 4100;
+    startStudio(port, process.env.WORKSPACE_DIR || './.workspace');
+  });
+
+/**
  * Run Command: Execute autonomous ReAct agent with goal prompt
  */
 program
@@ -85,7 +102,8 @@ program
   .argument('<prompt>', 'Goal prompt for the autonomous agent to execute')
   .option('-m, --model <model>', 'Kei model name (default: from .env or glm-5.3-flash)')
   .option('-w, --workspace <path>', 'Workspace directory path (default: ./.workspace)')
-  .description('Run autonomous ReAct agent with real-time terminal cockpit')
+  .option('-t, --team', 'Enable Multi-Agent Swarm (Architect, Specialist, SecurityCritic, Synthesizer)')
+  .description('Run autonomous ReAct agent or Multi-Agent Swarm with real-time terminal cockpit')
   .action(async (prompt: string, options) => {
     console.log(Theme.banner());
 
@@ -104,6 +122,33 @@ program
     registry.register(new WebFetchSkill());
     registry.register(new MemoryKvSkill());
     registry.register(new ArtifactPublishSkill());
+    registry.register(new DynamicSkillCreatorSkill(registry));
+
+    const cockpit = new Cockpit();
+
+    if (options.team) {
+      cockpit.start(`Launching Multi-Agent Swarm for goal: "${prompt.slice(0, 50)}..."`);
+      const team = new AgentTeam({ client, skills: registry, workspace });
+      team.on('team_step', (e) => {
+        cockpit.start(`[${e.agentRole.toUpperCase()}] ${e.message}`);
+      });
+
+      try {
+        const teamResult = await team.execute(prompt);
+        cockpit.stop();
+
+        console.log(chalk.bold.green('\n[FINAL VERIFIED DELIVERABLE]'));
+        console.log(chalk.white(teamResult.finalDeliverable));
+
+        cockpit.summary(4, { totalTokens: teamResult.totalTokens, promptTokens: Math.round(teamResult.totalTokens * 0.75), completionTokens: Math.round(teamResult.totalTokens * 0.25) });
+      } catch (err: unknown) {
+        cockpit.stop();
+        const msg = err instanceof Error ? err.message : String(err);
+        console.log(chalk.red(`\nTeam Swarm Error: ${msg}\n`));
+        process.exit(1);
+      }
+      return;
+    }
 
     const agent = new Agent({
       client,
@@ -112,9 +157,7 @@ program
       model: options.model,
     });
 
-    const cockpit = new Cockpit();
     cockpit.start(`Starting agent for goal: "${prompt.slice(0, 50)}..."`);
-
     agent.on('step', (event) => cockpit.handleStep(event));
 
     try {
@@ -151,13 +194,15 @@ program
  */
 program
   .command('workflow')
-  .argument('<name>', 'Workflow name: "audit"')
-  .description('Run an end-to-end pipeline workflow (e.g. "audit")')
-  .action(async (name: string) => {
+  .argument('<name>', 'Workflow name: "audit" or "slides"')
+  .option('-t, --topic <topic>', 'Topic for the slide deck (when running "slides")', 'Kei-Nexus: Autonomous AI Agent Ecosystem')
+  .description('Run an end-to-end pipeline workflow ("audit" or "slides")')
+  .action(async (name: string, options: { topic?: string }) => {
     console.log(Theme.banner());
 
-    if (name !== 'audit') {
-      console.log(chalk.red(`Unknown workflow: "${name}". Available workflows: "audit"`));
+    const validNames = ['audit', 'slides', 'presentation'];
+    if (!validNames.includes(name.toLowerCase())) {
+      console.log(chalk.red(`Unknown workflow: "${name}". Available workflows: "audit" or "slides"`));
       process.exit(1);
     }
 
@@ -176,7 +221,10 @@ program
 
     const agent = new Agent({ client, skills: registry, workspace });
     const runner = new WorkflowRunner(workspace);
-    const pipeline = createFullstackAuditPipeline(agent);
+    const isSlides = name.toLowerCase() === 'slides' || name.toLowerCase() === 'presentation';
+    const pipeline = isSlides
+      ? createPresentationPipeline(agent, options.topic)
+      : createFullstackAuditPipeline(agent);
 
     console.log(chalk.bold.cyan(`Executing Flagship Workflow Pipeline: [ ${name.toUpperCase()} ]\n`));
 
@@ -194,7 +242,7 @@ program
     agent.on('step', (event) => cockpit.handleStep(event));
 
     try {
-      const summary = await runner.runPipeline('fullstack-audit', pipeline);
+      const summary = await runner.runPipeline(name, pipeline);
       cockpit.stop();
 
       const secStep = summary.stepResults.find((s) => s.stepName === 'security_audit')?.output as { tokensUsed?: number } | undefined;
@@ -203,7 +251,8 @@ program
       const promptTokens = Math.round(totalTokens * 0.75);
       const completionTokens = totalTokens - promptTokens;
 
-      const artifactPath = path.join(workspace.getChambers().artifacts, 'audit-report.html');
+      const artifactFileName = isSlides ? 'pitch-deck.html' : 'audit-report.html';
+      const artifactPath = path.join(workspace.getChambers().artifacts, artifactFileName);
       cockpit.summary(pipeline.length, { totalTokens, promptTokens, completionTokens }, artifactPath);
     } catch (err: unknown) {
       cockpit.stop();

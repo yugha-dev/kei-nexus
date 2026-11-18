@@ -2,13 +2,13 @@
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue?logo=typescript)](https://www.typescriptlang.org/)
 [![Vitest](https://img.shields.io/badge/Vitest-3.0-green?logo=vitest)](https://vitest.dev/)
-[![Coverage](https://img.shields.io/badge/Coverage-86%25-brightgreen)](https://github.com/kei-nexus)
-[![Security Gate](https://img.shields.io/badge/Security%20Gate-100%25%20Passed-emerald)](https://github.com/kei-nexus)
+[![Coverage](https://img.shields.io/badge/Coverage-86%25-brightgreen)](https://github.com/yugha-dev/kei-nexus)
+[![Security Gate](https://img.shields.io/badge/Security%20Gate-100%25%20Passed-emerald)](https://github.com/yugha-dev/kei-nexus)
 [![Inference](https://img.shields.io/badge/Provider-Kei%20Inference-cyan)](https://api.kei-inference.web.id)
 [![License](https://img.shields.io/badge/License-MIT-purple)](LICENSE)
 
 > Built for **CHALLENGE KEI INFERENCE — AI AGENT ECOSYSTEM**  
-> An autonomous, secure, and production-grade AI agent ecosystem featuring an event-driven **Harness**, schema-first **Skills**, a sandboxed four-chamber **Workspace**, and an end-to-end **Workflow** synthesizing standalone interactive living artifacts.
+> An autonomous, secure, and production-grade AI agent ecosystem featuring an event-driven **Harness**, **Multi-Agent Swarm**, schema-first **Skills**, a sandboxed four-chamber **Workspace**, an embedded **Web Studio GUI**, and end-to-end **Workflows** synthesizing standalone interactive living artifacts.
 
 ---
 
@@ -85,7 +85,7 @@ To strictly fulfill the competition's mandatory security gate (*Pass/Fail*), Kei
 
 ### 2. Clone & Install
 ```bash
-git clone https://github.com/your-username/kei-nexus.git
+git clone https://github.com/yugha-dev/kei-nexus.git
 cd kei-nexus
 npm install
 ```
@@ -107,14 +107,23 @@ Verify connection to Kei Inference and available models:
 npm run doctor
 ```
 
-### 5. Launch Autonomous Showcase Workflow
-Execute the end-to-end full-stack verification and artifact generation:
+### 5. Launch Interactive Web Studio Cockpit (GUI)
+Start the built-in Web Studio server and interact visually via your browser:
+```bash
+npm run studio
+```
+Then open **`http://localhost:4100`** — featuring live SSE token streaming, prompt suggestions, and real-time artifact previews!
+
+### 6. Launch Autonomous Showcase Workflows
+Execute the end-to-end fullstack verification pipeline:
 ```bash
 npm run workflow:audit
+# Generates .workspace/artifacts/audit-report.html
 ```
-After completion, open the generated interactive report in your browser:
+Or synthesize an interactive presentation slide deck:
 ```bash
-open .workspace/artifacts/audit-report.html
+npm run workflow:slides
+# Generates .workspace/artifacts/pitch-deck.html
 ```
 
 ---
@@ -129,10 +138,26 @@ Executes an autonomous ReAct agent loop for any user goal:
 npx tsx src/cli/index.ts run "Research and summarize the architectural advantages of DeepSeek v4.1"
 ```
 
-### `workflow audit`
-Runs the pre-built flagship audit pipeline:
+### `workflow audit` & `workflow slides`
+Runs pre-built flagship pipelines:
 ```bash
+# Security & architecture audit pipeline
 npx tsx src/cli/index.ts workflow audit
+
+# Interactive HTML5 presentation generator
+npx tsx src/cli/index.ts workflow slides --topic "Kei-Nexus: Autonomous AI Agent Ecosystem"
+```
+
+### `studio`
+Launches the embedded Web Studio web app on port 4100:
+```bash
+npx tsx src/cli/index.ts studio
+```
+
+### `replay [logFile]`
+Inspects and replays past Flight Recorder NDJSON traces:
+```bash
+npx tsx src/cli/index.ts replay
 ```
 
 ### `doctor`
@@ -141,10 +166,21 @@ Performs live healthcheck against Kei Inference API:
 npx tsx src/cli/index.ts doctor
 ```
 
-### `replay [logFile]`
-Inspects and replays past Flight Recorder NDJSON traces:
-```bash
-npx tsx src/cli/index.ts replay
+---
+
+## 👥 Multi-Agent Swarm (`AgentTeam`)
+
+Kei-Nexus provides an adversarial multi-agent swarm in `src/core/harness/team.ts`:
+1. **Architect**: Breaks down complex goals into a 3-stage tactical plan.
+2. **Specialist**: Executes actions using the schema-first tool registry inside the sandboxed workspace.
+3. **SecurityCritic**: Adversarially reviews the output for vulnerabilities, hallucinations, and logic flaws.
+4. **Synthesizer**: Consolidates critique and execution into a final verified deliverable.
+
+```typescript
+import { AgentTeam } from './src/core/harness/team.js';
+
+const team = new AgentTeam({ client, skills, workspace });
+const result = await team.execute('Build and audit an autonomous pipeline');
 ```
 
 ---
@@ -162,21 +198,29 @@ npm run test:coverage
 ```
 
 ### Test Coverage Summary:
-- **Test Suites:** 6 passed (100%)
-- **Tests:** 41 passed (100%)
-- **Statements:** 86.84%
-- **Functions:** 87.61%
-- **Lines:** 86.84%
+- **Test Suites:** 8 passed (100%)
+- **Tests:** 47 passed (100%)
+- **Statements:** 86.02%
+- **Functions:** 87.17%
+- **Lines:** 86.02%
+- **Branches:** 70.31%
 
 ---
 
-## 🎨 Interactive Living HTML Artifact (WOW Factor)
+## 🎨 Interactive Living Artifacts (WOW Factor for Voters & Jury)
 
-When the workflow concludes, Kei-Nexus synthesizes a self-contained, responsive, single-file HTML5 application in `.workspace/artifacts/audit-report.html`:
-- **Dark Mode Cyberpunk Theme**: Styled with modern Tailwind CSS and glowing cyan accents.
-- **Dynamic Search & Filtering**: Client-side filtering of findings by severity (`CRITICAL`, `HIGH`, `MEDIUM`, `INFO`).
-- **Interactive KPI Cards**: Real-time display of ReAct turns, tokens consumed, latency, and Security Gate score.
-- **Embedded Kei Flight Recorder**: Step-by-step interactive log player allowing anyone to inspect prompts, tool arguments, and model thoughts with zero server dependencies.
+When workflows run, Kei-Nexus synthesizes self-contained, responsive, zero-dependency HTML5 applications directly into `.workspace/artifacts/`:
+
+1. **`audit-report.html` (Living Dashboard)**:
+   - Modern Tailwind CSS dark-mode cyberpunk theme.
+   - Client-side real-time search & severity filter (`CRITICAL`, `HIGH`, `MEDIUM`, `INFO`).
+   - Interactive KPI counters (ReAct turns, tokens, latency, security score).
+   - Embedded interactive NDJSON Flight Recorder replayer with step slider.
+
+2. **`pitch-deck.html` (Interactive Slide Deck)**:
+   - Standalone HTML5 presentation deck with keyboard controls (`←` / `→` / `Space`).
+   - Animated slide transitions, syntax-highlighted code blocks, and takeaway callouts.
+   - Zero external build dependencies — double click to present anywhere.
 
 ---
 

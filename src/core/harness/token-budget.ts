@@ -21,11 +21,18 @@ export class TokenBudget {
     completion_tokens?: number;
     reasoning_tokens?: number;
     total_tokens?: number;
+    promptTokens?: number;
+    completionTokens?: number;
+    reasoningTokens?: number;
+    totalTokens?: number;
   }): void {
     if (!usage) return;
-    if (usage.prompt_tokens) this.promptTokens += usage.prompt_tokens;
-    if (usage.completion_tokens) this.completionTokens += usage.completion_tokens;
-    if (usage.reasoning_tokens) this.reasoningTokens += usage.reasoning_tokens;
+    const prompt = usage.prompt_tokens ?? usage.promptTokens ?? 0;
+    const completion = usage.completion_tokens ?? usage.completionTokens ?? 0;
+    const reasoning = usage.reasoning_tokens ?? usage.reasoningTokens ?? 0;
+    this.promptTokens += prompt;
+    this.completionTokens += completion;
+    this.reasoningTokens += reasoning;
   }
 
   public getStats(): TokenUsageStats {
