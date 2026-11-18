@@ -1,0 +1,47 @@
+{
+  "name": "kei-nexus",
+  "version": "1.0.0",
+  "description": "Autonomous AI Agent Ecosystem for Challenge Kei Inference",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "kei-nexus": "dist/cli/index.js"
+  },
+  "scripts": {
+    "dev": "tsx src/cli/index.ts",
+    "start": "node dist/cli/index.js",
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "doctor": "tsx src/cli/index.ts doctor",
+    "workflow:audit": "tsx src/cli/index.ts workflow audit",
+    "workflow:research": "tsx src/cli/index.ts workflow research"
+  },
+  "keywords": [
+    "ai",
+    "agent",
+    "ecosystem",
+    "harness",
+    "skills",
+    "workspace",
+    "workflow",
+    "kei-inference"
+  ],
+  "author": "Kei-Nexus Team",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "commander": "^13.1.0",
+    "dotenv": "^16.4.7",
+    "ora": "^8.2.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.9",
+    "@vitest/coverage-v8": "^3.0.7",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.7"
+  }
+}

@@ -1,0 +1,13 @@
+node_modules/
+dist/
+coverage/
+.env
+.workspace/scratchpad/*
+!.workspace/scratchpad/.gitkeep
+.workspace/audit/*
+!.workspace/audit/.gitkeep
+.workspace/artifacts/*
+!.workspace/artifacts/.gitkeep
+.workspace/memory/*
+!.workspace/memory/.gitkeep
+.DS_Store
